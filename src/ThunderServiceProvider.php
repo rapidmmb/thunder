@@ -1,5 +1,7 @@
 <?php
 
+namespace Mmb\Thunder;
+
 use Illuminate\Support\ServiceProvider;
 
 class ThunderServiceProvider extends ServiceProvider
@@ -7,6 +9,7 @@ class ThunderServiceProvider extends ServiceProvider
 
     protected array $commands = [
         Commands\ThunderStartCommand::class,
+        Commands\ThunderRunProcessCommand::class,
     ];
 
     public function register()

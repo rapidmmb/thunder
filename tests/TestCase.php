@@ -2,6 +2,8 @@
 
 namespace Mmb\Thunder\Tests;
 
+use Mmb\Thunder\ThunderServiceProvider;
+
 class TestCase extends \Orchestra\Testbench\TestCase
 {
 
@@ -9,7 +11,7 @@ class TestCase extends \Orchestra\Testbench\TestCase
     {
         return [
             ...parent::getPackageProviders($app),
-            LaplusServiceProvider::class,
+            ThunderServiceProvider::class,
         ];
     }
 

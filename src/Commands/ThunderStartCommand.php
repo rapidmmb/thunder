@@ -1,8 +1,10 @@
 <?php
 
-namespace Commands;
+namespace Mmb\Thunder\Commands;
 
 use Illuminate\Console\Command;
+use Mmb\Core\Updates\Update;
+use Mmb\Thunder\Thunder;
 
 class ThunderStartCommand extends Command
 {
@@ -17,6 +19,13 @@ class ThunderStartCommand extends Command
     public function handle()
     {
         $this->components->info("Thunder Started ⚡");
+
+        bot()->loopUpdates(
+            function (Update $update)
+            {
+                Thunder::punch($update);
+            }
+        );
     }
 
 }
