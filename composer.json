@@ -1,0 +1,29 @@
+{
+    "name": "mmb/thunder",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Mmb\\Thunder\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Mahdi Saremi",
+            "email": "mahdisarmi00@gmail.com"
+        }
+    ],
+    "require": {
+        "mmb/mmb": "*"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^9.0"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Mmb\\Thunder\\ThunderServiceProvider"
+            ]
+        }
+    }
+}
