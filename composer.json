@@ -13,6 +13,11 @@
             "email": "mahdisarmi00@gmail.com"
         }
     ],
+    "autoload-dev": {
+        "psr-4": {
+            "Mmb\\Thunder\\Tests\\": "tests/"
+        }
+    },
     "require": {
         "mmb/mmb": "*"
     },
