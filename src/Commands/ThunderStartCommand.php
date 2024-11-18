@@ -4,6 +4,7 @@ namespace Mmb\Thunder\Commands;
 
 use Illuminate\Console\Command;
 use Mmb\Core\Updates\Update;
+use Mmb\Thunder\Exceptions\StopThunderException;
 use Mmb\Thunder\Thunder;
 
 class ThunderStartCommand extends Command
@@ -53,7 +54,7 @@ class ThunderStartCommand extends Command
                     if (file_exists('thunder-stop.command'))
                     {
                         @unlink('thunder-stop.command');
-                        throw new \Exception;
+                        throw new StopThunderException();
                     }
 
                     Thunder::getSharing()->disposeOlderThan($release);
@@ -61,7 +62,7 @@ class ThunderStartCommand extends Command
                 timeout: config('thunder.hook.long', 15),
             );
         }
-        catch (\Exception)
+        catch (StopThunderException)
         {
             $this->alert("Turning off...");
 
