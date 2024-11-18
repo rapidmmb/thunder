@@ -44,11 +44,11 @@ return [
     |
     |
     |
-    | Allowed types: file
+    | Allowed types: file, pipe
     |
     */
     'sharing' => [
-        'driver' => 'file',
+        'driver' => 'pipe',
 
         'file' => [
             'path' => storage_path('thunder/share'),
