@@ -15,7 +15,7 @@ interface Sharing
 
     public function delete(string $tag) : void;
 
-    public function disposeOlderThan(int $timeout) : void;
+    public function disposeOlderThan(int $timeout) : int;
 
     public function dispose() : void;
 

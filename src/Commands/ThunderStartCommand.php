@@ -4,8 +4,8 @@ namespace Mmb\Thunder\Commands;
 
 use Illuminate\Console\Command;
 use Mmb\Core\Updates\Update;
-use Mmb\Thunder\Exceptions\StopThunderException;
-use Mmb\Thunder\Thunder;
+use Mmb\Thunder\Handle\ServerEventHandler;
+use Mmb\Thunder\Handle\ServerHandler;
 
 class ThunderStartCommand extends Command
 {
@@ -19,67 +19,53 @@ class ThunderStartCommand extends Command
 
     public function handle()
     {
-        $lockPath = Thunder::getLockPath();
-        $stopCommandPath = Thunder::getStopCommandPath();
+        (new ServerHandler(
+            new class($this) implements ServerEventHandler
+            {
 
-        if (!file_exists($lockPath))
-        {
-            touch($lockPath);
-        }
-
-        $lock = fopen($lockPath, 'w');
-        $lockTries = 10;
-        while (!flock($lock, LOCK_EX | LOCK_NB) && --$lockTries)
-        {
-            usleep(100000);
-        }
-
-        if (!$lockTries)
-        {
-            $this->components->error("Thunder is already running in background ⚡");
-            return;
-        }
-
-        $this->components->info("Thunder Started ⚡");
-
-        $release = config('thunder.puncher.release', 100);
-
-        try
-        {
-            bot()->loopUpdates(
-                function (Update $update)
+                public function __construct(
+                    protected ThunderStartCommand $cmd,
+                )
                 {
-                    $this->output->info("New update received");
-                    Thunder::punch($update);
-                },
-                pass: function () use ($release, $stopCommandPath)
+                }
+
+                public function alreadyRunning()
                 {
-                    if (file_exists($stopCommandPath))
-                    {
-                        @unlink($stopCommandPath);
-                        throw new StopThunderException();
-                    }
+                    $this->cmd->components->error("Thunder is already running in background ⚡");
+                }
 
-                    Thunder::getSharing()->disposeOlderThan($release);
-                },
-                timeout: config('thunder.hook.long', 15),
-            );
-        }
-        catch (StopThunderException)
-        {
-            $this->alert("Turning off...");
+                public function started()
+                {
+                    $this->cmd->components->info("Thunder Started ⚡");
+                }
 
-            Thunder::getSharing()->dispose();
+                public function newUpdate(Update $update)
+                {
+                    $this->cmd->output->info("New update received");
+                }
 
-            $this->components->alert("Thunder turned off ⚡");
-        }
-        finally
-        {
-            flock($lock, LOCK_UN);
-            fclose($lock);
+                public function turningOff()
+                {
+                    $this->cmd->alert("Turning off...");
+                }
 
-            @unlink($lockPath);
-        }
+                public function turnedOff()
+                {
+                    $this->cmd->components->alert("Thunder turned off ⚡");
+                }
+
+                public function releasedOld(int $killed)
+                {
+                    $this->cmd->output->info("$killed process killed");
+                }
+
+                public function suggest(string $message)
+                {
+                    $this->cmd->output->note($message);
+                }
+
+            }
+        ))->handle();
     }
 
 }

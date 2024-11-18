@@ -3,8 +3,7 @@
 namespace Mmb\Thunder\Commands;
 
 use Illuminate\Console\Command;
-use Mmb\Core\Updates\Update;
-use Mmb\Thunder\Thunder;
+use Mmb\Thunder\Handle\ProcessHandler;
 
 class ThunderRunProcessCommand extends Command
 {
@@ -16,35 +15,13 @@ class ThunderRunProcessCommand extends Command
      */
     protected $signature = 'thunder:run-process {tag}';
 
+    protected $hidden = true;
+
     public function handle()
     {
         $tag = $this->argument('tag');
 
-        $sharing = Thunder::getSharing();
-
-        try
-        {
-            while (true)
-            {
-                if (null !== $new = $sharing->receive($tag))
-                {
-                    if ($new === 'STOP')
-                    {
-                        break;
-                    }
-                    elseif ($new instanceof Update)
-                    {
-                        $new->handle();
-                    }
-                }
-
-                usleep(20000);
-            }
-        }
-        finally
-        {
-            $sharing->delete($tag);
-        }
+        (new ProcessHandler($tag))->handle();
     }
 
 }

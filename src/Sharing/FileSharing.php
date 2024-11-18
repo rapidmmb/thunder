@@ -127,15 +127,20 @@ class FileSharing implements Sharing
         }
     }
 
-    public function disposeOlderThan(int $timeout) : void
+    public function disposeOlderThan(int $timeout) : int
     {
+        $count = 0;
+
         foreach ($this->resources as $file)
         {
             if (!$file->isExpired && !$file->isStopped() && time() - $file->lastMessageAt > $timeout)
             {
                 $file->write('STOP');
                 $file->isExpired = true;
+                $count++;
             }
         }
+
+        return $count;
     }
 }

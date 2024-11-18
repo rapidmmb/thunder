@@ -3,6 +3,8 @@
 namespace Mmb\Thunder\Commands;
 
 use Illuminate\Console\Command;
+use Mmb\Thunder\Handle\StopEventHandler;
+use Mmb\Thunder\Handle\StopHandler;
 use Mmb\Thunder\Thunder;
 
 class ThunderStopCommand extends Command
@@ -17,44 +19,34 @@ class ThunderStopCommand extends Command
 
     public function handle()
     {
-        $lockPath = Thunder::getLockPath();
-        $stopCommandPath = Thunder::getStopCommandPath();
-
-        if (!file_exists($lockPath))
-        {
-            $this->components->error("Thunder is not running ⚡");
-            return;
-        }
-
-        $lock = fopen($lockPath, 'w');
-        try
-        {
-            if (flock($lock, LOCK_EX | LOCK_NB))
+        (new StopHandler(
+            new class($this) implements StopEventHandler
             {
-                $this->components->error("Thunder is not running ⚡");
-                return;
+
+                public function __construct(
+                    protected ThunderStartCommand $cmd,
+                )
+                {
+                }
+
+                public function isNotRunning()
+                {
+                    $this->cmd->components->error("Thunder is not running ⚡");
+                }
+
+                public function processing()
+                {
+                    $this->cmd->components->info("Trying to stopping main process... ⚡");
+                    $this->cmd->info("Waiting for main process to response...");
+                }
+
+                public function success()
+                {
+                    $this->cmd->components->success("Thunder stopped ⚡");
+                }
+
             }
-        }
-        finally
-        {
-            flock($lock, LOCK_UN);
-            fclose($lock);
-        }
-
-        if (!file_exists($stopCommandPath))
-        {
-            touch($stopCommandPath);
-        }
-
-        $this->components->info("Trying to stopping main process... ⚡");
-        $this->info("Waiting for main process to response...");
-
-        while (file_exists($stopCommandPath))
-        {
-            sleep(1);
-        }
-
-        $this->components->success("Thunder stopped ⚡");
+        ))->handle();
     }
 
 }
