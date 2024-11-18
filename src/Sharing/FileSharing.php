@@ -113,7 +113,8 @@ class FileSharing implements Sharing
             $file->requestStop();
         }
 
-        while ($willStop)
+        $tries = 100;
+        while ($willStop && --$tries)
         {
             foreach ($willStop as $tag => $file)
             {
