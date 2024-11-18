@@ -106,11 +106,11 @@ class FileSharing implements Sharing
 
     public function dispose() : void
     {
-        $willStop = array_filter($this->resources, fn ($file) => !$file->isStopped());
+        $willStop = array_filter($this->resources, fn ($file) => !$file->isExpired && !$file->isStopped());
 
-        foreach ($willStop as $tag => $file)
+        foreach ($willStop as $file)
         {
-            $this->delete($tag);
+            $file->requestStop();
         }
 
         while ($willStop)
@@ -135,8 +135,7 @@ class FileSharing implements Sharing
         {
             if (!$file->isExpired && !$file->isStopped() && time() - $file->lastMessageAt > $timeout)
             {
-                $file->write('STOP');
-                $file->isExpired = true;
+                $file->requestStop();
                 $count++;
             }
         }

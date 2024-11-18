@@ -95,6 +95,16 @@ class FileShared
     /**
      * @return void
      */
+    public function requestStop()
+    {
+        $this->isExpired = true;
+        $this->write('STOP');
+        fclose($this->resource);
+    }
+
+    /**
+     * @return void
+     */
     public function forceStop() : void
     {
         fclose($this->resource);

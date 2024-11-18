@@ -90,12 +90,13 @@ class ServerHandler
     /**
      * Event for forcing shutdown like Ctrl+C event
      *
-     * @return void
+     * @return never
      */
-    public function onForceShutdown()
+    public function onForceShutdown() : never
     {
         $this->stop();
         $this->release();
+        exit;
     }
 
     /**
@@ -110,7 +111,6 @@ class ServerHandler
             case PHP_WINDOWS_EVENT_CTRL_C:
             case PHP_WINDOWS_EVENT_CTRL_BREAK:
                 $this->onForceShutdown();
-                exit;
         }
     }
 
@@ -201,11 +201,14 @@ class ServerHandler
             $this->preHandled = file_exists($this->commandPath) ? file_get_contents($this->commandPath) : true;
         }
 
-        switch ($this->preHandled)
+        if (is_string($this->preHandled))
         {
-            case 'STOP':
-                @unlink($this->commandPath);
-                throw new StopThunderException();
+            switch ($this->preHandled)
+            {
+                case 'STOP':
+                    @unlink($this->commandPath);
+                    throw new StopThunderException();
+            }
         }
 
         $this->preHandled = false;
