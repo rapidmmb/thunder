@@ -69,25 +69,50 @@ class FileShared
     {
         flock($this->resource, LOCK_EX);
 
-        if (fstat($this->resource)['size'] - ftell($this->resource) <= 0)
+        $msg = null;
+        if (fstat($this->resource)['size'] - ftell($this->resource) > 0)
         {
-            $msg = null;
-        }
-        else
-        {
-            $length = unpack('J', fread($this->resource, 8))[1];
-            $msg = fread($this->resource, $length);
-
-            if (fstat($this->resource)['size'] - ftell($this->resource) <= 0)
+            if ($this->waitForLength(8))
             {
-                ftruncate($this->resource, 0);
-                fseek($this->resource, 0);
+                $length = unpack('J', fread($this->resource, 8))[1];
+
+                if ($this->waitForLength($length))
+                {
+                    $msg = fread($this->resource, $length);
+
+                    if (fstat($this->resource)['size'] - ftell($this->resource) <= 0)
+                    {
+                        ftruncate($this->resource, 0);
+                        fseek($this->resource, 0);
+                    }
+                }
+                else
+                {
+                    fseek($this->resource, -8, SEEK_CUR);
+                }
             }
         }
 
         flock($this->resource, LOCK_UN);
 
         return $msg === null ? null : unserialize($msg);
+    }
+
+    /**
+     * Block the code for finished writing a length
+     *
+     * @param int $length
+     * @return bool
+     */
+    public function waitForLength(int $length) : bool
+    {
+        $tries = 100;
+        while (fstat($this->resource)['size'] - ftell($this->resource) < $length && --$tries)
+        {
+            usleep(2000);
+        }
+
+        return $tries > 0;
     }
 
     /**

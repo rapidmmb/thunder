@@ -101,7 +101,7 @@ class FileSharing implements Sharing
 
     public function receive(string $tag) : mixed
     {
-        return $this->getResource($tag, false)->read();
+        return $this->getResource($tag, true)->read();
     }
 
     public function dispose() : void
