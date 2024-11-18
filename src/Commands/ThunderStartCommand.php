@@ -28,7 +28,6 @@ class ThunderStartCommand extends Command
         while (!flock($lock, LOCK_EX | LOCK_NB) && --$lockTries)
         {
             usleep(100000);
-            $lockTries--;
         }
 
         if (!$lockTries)
