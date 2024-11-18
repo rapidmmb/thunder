@@ -61,7 +61,6 @@ class PipeSharing implements Sharing
 
     public function delete(string $tag) : void
     {
-        unset($this->lastMessagesAt[$tag]);
         // $this->getPipeable()?->closePipe($tag);
     }
 
@@ -74,6 +73,7 @@ class PipeSharing implements Sharing
             if (!$this->isStopped($tag) && time() - ($this->lastMessagesAt[$tag] ?? 0) > $timeout)
             {
                 $this->send($tag, 'STOP');
+                unset($this->lastMessagesAt[$tag]);
                 $count++;
             }
         }

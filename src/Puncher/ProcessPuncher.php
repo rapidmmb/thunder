@@ -66,7 +66,7 @@ class ProcessPuncher implements Puncher, Pipeable
 
         foreach ($this->processes as $tag => [$proc, $in])
         {
-            if ($proc && proc_get_status($proc) == 'running' && !feof($in))
+            if ($proc && /*@proc_get_status($proc)['running'] &&*/ !feof($in))
             {
                 $all[] = $tag;
             }

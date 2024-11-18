@@ -40,8 +40,10 @@ class ProcessHandler
 
                     $lastMessageAt = time();
                 }
-
-                usleep(20000);
+                else
+                {
+                    usleep(20000);
+                }
             }
         }
         catch (ProcessShareFileNotFoundException) {}
