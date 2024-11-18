@@ -19,40 +19,73 @@ class FileSharing implements Sharing
         }
     }
 
+    /**
+     * @var array<string, FileShared>
+     */
     protected array $resources = [];
 
-    protected function getResource(string $tag)
+    /**
+     * Get a tag resource
+     *
+     * @param string $tag
+     * @return FileShared
+     */
+    protected function getResource(string $tag) : FileShared
     {
-        if (!isset($this->resources[$tag]))
+        if (isset($this->resources[$tag]))
         {
-            $path = $this->getLockFile($tag);
+            $file = $this->resources[$tag];
 
-            if (!file_exists($path))
+            if ($file->isExpired)
             {
-                touch($path);
+                $tries = 10;
+                while (!$file->isStopped() && --$tries)
+                {
+                    usleep(20000);
+                }
             }
-
-            $resource = fopen($path, 'r+');
-            fseek($resource, 0);
-            return $this->resources[$tag] = $resource;
+            elseif (!$file->isStopped())
+            {
+                return $file;
+            }
         }
 
-        return $this->resources[$tag];
+        return $this->resources[$tag] = new FileShared($tag);
     }
 
+    /**
+     * Get lock file from tag name
+     *
+     * @param string $tag
+     * @return string
+     */
     protected function getLockFile(string $tag)
     {
         return $this->path . '/' . hash('xxh3', $tag) . '.lock';
     }
 
 
-    public function isStop(string $tag) : bool
+    /**
+     * Checks the process of tag is stopped or not
+     *
+     * @param string $tag
+     * @return bool
+     */
+    public function isStopped(string $tag) : bool
     {
-        return !file_exists($this->getLockFile($tag));
+        return @$this->resources[$tag]?->isStopped() ?? true;
     }
 
+    /**
+     * Force stop and delete the tag
+     *
+     * @param string $tag
+     * @return void
+     */
     public function delete(string $tag) : void
     {
+        @$this->resources[$tag]?->forceStop();
+
         if (file_exists($path = $this->getLockFile($tag)))
         {
             unlink($path);
@@ -63,74 +96,46 @@ class FileSharing implements Sharing
 
     public function send(string $tag, mixed $message) : void
     {
-        $file = $this->getResource($tag);
-
-        flock($file, LOCK_EX);
-
-        if (fstat($file)['size'] <= 0)
-        {
-            fseek($file, 0);
-        }
-
-        $msg = serialize($message);
-
-        ftruncate($file, ftell($file) + 8 + strlen($msg));
-
-        fwrite($file, pack('J', strlen($msg)));
-        fwrite($file, $msg);
-
-        flock($file, LOCK_UN);
+        $this->getResource($tag)->write($message);
     }
 
     public function receive(string $tag) : mixed
     {
-        $file = $this->getResource($tag);
-
-        flock($file, LOCK_EX);
-
-        if (fstat($file)['size'] - ftell($file) <= 0)
-        {
-            $msg = null;
-        }
-        else
-        {
-            $length = unpack('J', fread($file, 8))[1];
-            $msg = fread($file, $length);
-
-            if (fstat($file)['size'] - ftell($file) <= 0)
-            {
-                ftruncate($file, 0);
-                fseek($file, 0);
-            }
-        }
-
-        flock($file, LOCK_UN);
-
-        return $msg === null ? null : unserialize($msg);
+        return $this->getResource($tag)->read();
     }
 
     public function dispose() : void
     {
-        $tags = array_keys($this->resources);
+        $willStop = array_filter($this->resources, fn ($file) => !$file->isStopped());
 
-        foreach ($tags as $tag)
+        foreach ($willStop as $tag => $file)
         {
-            $this->send($tag, 'STOP');
+            $this->delete($tag);
         }
 
-        $tags = array_flip($tags);
-
-        while ($tags)
+        while ($willStop)
         {
-            foreach ($tags as $tag => $_)
+            foreach ($willStop as $tag => $file)
             {
-                if ($this->isStop($tag))
+                if ($file->isStopped())
                 {
-                    unset($tags[$tag]);
+                    unset($willStop[$tag]);
                 }
             }
 
             usleep(100000);
+        }
+    }
+
+    public function disposeOlderThan(int $timeout) : void
+    {
+        foreach ($this->resources as $file)
+        {
+            if (!$file->isExpired && !$file->isStopped() && $file->lastMessageAt - time() > $timeout)
+            {
+                $file->write('STOP');
+                $file->isExpired = true;
+            }
         }
     }
 }

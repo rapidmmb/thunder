@@ -16,6 +16,7 @@ return [
     */
     'puncher' => [
         'driver' => 'process',
+        'release' => 180,
 
         'process' => [
             'command' => 'php artisan thunder:run-process [TAG]',

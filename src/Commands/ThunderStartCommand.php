@@ -38,6 +38,8 @@ class ThunderStartCommand extends Command
 
         $this->components->info("Thunder Started ⚡");
 
+        $release = config('thunder.puncher.release', 100);
+
         try
         {
             bot()->loopUpdates(
@@ -46,13 +48,15 @@ class ThunderStartCommand extends Command
                     $this->output->info("New update received");
                     Thunder::punch($update);
                 },
-                pass: function ()
+                pass: function () use ($release)
                 {
                     if (file_exists('thunder-stop.command'))
                     {
                         @unlink('thunder-stop.command');
                         throw new \Exception;
                     }
+
+                    Thunder::getSharing()->disposeOlderThan($release);
                 },
                 timeout: config('thunder.hook.long', 15),
             );

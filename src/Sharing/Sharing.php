@@ -11,9 +11,11 @@ interface Sharing
 
     public function receive(string $tag) : mixed;
 
-    public function isStop(string $tag) : bool;
+    public function isStopped(string $tag) : bool;
 
     public function delete(string $tag) : void;
+
+    public function disposeOlderThan(int $timeout) : void;
 
     public function dispose() : void;
 

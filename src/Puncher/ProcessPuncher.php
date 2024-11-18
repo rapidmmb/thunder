@@ -11,7 +11,7 @@ class ProcessPuncher implements Puncher
 
     public function punch(string $tag) : void
     {
-        if (!array_key_exists($tag, $this->processes) || Thunder::getSharing()->isStop($tag))
+        if (!array_key_exists($tag, $this->processes) || Thunder::getSharing()->isStopped($tag))
         {
             $command = config('thunder.puncher.process.command');
 
