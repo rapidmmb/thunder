@@ -5,9 +5,8 @@ namespace Mmb\Thunder\Commands;
 use Illuminate\Console\Command;
 use Mmb\Thunder\Handle\StopEventHandler;
 use Mmb\Thunder\Handle\StopHandler;
-use Mmb\Thunder\Thunder;
 
-class ThunderStopCommand extends Command
+class ThunderStopCommand extends Command implements StopEventHandler
 {
 
     /**
@@ -19,34 +18,23 @@ class ThunderStopCommand extends Command
 
     public function handle()
     {
-        (new StopHandler(
-            new class($this) implements StopEventHandler
-            {
+        (new StopHandler($this))->handle();
+    }
 
-                public function __construct(
-                    protected ThunderStartCommand $cmd,
-                )
-                {
-                }
+    public function isNotRunning()
+    {
+        $this->components->error("Thunder is not running ⚡");
+    }
 
-                public function isNotRunning()
-                {
-                    $this->cmd->components->error("Thunder is not running ⚡");
-                }
+    public function processing()
+    {
+        $this->components->info("Trying to stopping main process... ⚡");
+        $this->info("Waiting for main process to response...");
+    }
 
-                public function processing()
-                {
-                    $this->cmd->components->info("Trying to stopping main process... ⚡");
-                    $this->cmd->info("Waiting for main process to response...");
-                }
-
-                public function success()
-                {
-                    $this->cmd->components->success("Thunder stopped ⚡");
-                }
-
-            }
-        ))->handle();
+    public function success()
+    {
+        $this->components->success("Thunder stopped ⚡");
     }
 
 }

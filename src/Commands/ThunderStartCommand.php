@@ -7,7 +7,7 @@ use Mmb\Core\Updates\Update;
 use Mmb\Thunder\Handle\ServerEventHandler;
 use Mmb\Thunder\Handle\ServerHandler;
 
-class ThunderStartCommand extends Command
+class ThunderStartCommand extends Command implements ServerEventHandler
 {
 
     /**
@@ -19,53 +19,42 @@ class ThunderStartCommand extends Command
 
     public function handle()
     {
-        (new ServerHandler(
-            new class($this) implements ServerEventHandler
-            {
+        (new ServerHandler($this))->handle();
+    }
 
-                public function __construct(
-                    protected ThunderStartCommand $cmd,
-                )
-                {
-                }
+    public function alreadyRunning()
+    {
+        $this->components->error("Thunder is already running in background ⚡");
+    }
 
-                public function alreadyRunning()
-                {
-                    $this->cmd->components->error("Thunder is already running in background ⚡");
-                }
+    public function started()
+    {
+        $this->components->info("Thunder Started ⚡");
+    }
 
-                public function started()
-                {
-                    $this->cmd->components->info("Thunder Started ⚡");
-                }
+    public function newUpdate(Update $update)
+    {
+        $this->output->info("New update received");
+    }
 
-                public function newUpdate(Update $update)
-                {
-                    $this->cmd->output->info("New update received");
-                }
+    public function turningOff()
+    {
+        $this->alert("Turning off...");
+    }
 
-                public function turningOff()
-                {
-                    $this->cmd->alert("Turning off...");
-                }
+    public function turnedOff()
+    {
+        $this->components->alert("Thunder turned off ⚡");
+    }
 
-                public function turnedOff()
-                {
-                    $this->cmd->components->alert("Thunder turned off ⚡");
-                }
+    public function releasedOld(int $killed)
+    {
+        $this->output->info("$killed process killed");
+    }
 
-                public function releasedOld(int $killed)
-                {
-                    $this->cmd->output->info("$killed process killed");
-                }
-
-                public function suggest(string $message)
-                {
-                    $this->cmd->output->note($message);
-                }
-
-            }
-        ))->handle();
+    public function suggest(string $message)
+    {
+        $this->output->note($message);
     }
 
 }
