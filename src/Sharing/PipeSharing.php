@@ -53,7 +53,7 @@ class PipeSharing implements Sharing
     {
         if ($input = $this->getPipeable()?->getInput($tag))
         {
-            return feof($input);
+            return !is_resource($input) || feof($input);
         }
 
         return true;
@@ -74,6 +74,7 @@ class PipeSharing implements Sharing
             {
                 $this->send($tag, 'STOP');
                 unset($this->lastMessagesAt[$tag]);
+                fclose($this->getPipeable()->getInput($tag));
                 $count++;
             }
         }

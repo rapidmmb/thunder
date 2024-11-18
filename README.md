@@ -107,10 +107,10 @@ Sharing is the way to main process and child process should connect to each
 other and send messages.
 
 ```php
-'driver' => 'file',
+'driver' => 'pipe',
 ```
 
-> Currently, only "file" driver is available.
+> Currently, only "pipe" and "file" driver is available.
 
 
 ### Hook
