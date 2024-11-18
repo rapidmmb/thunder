@@ -67,7 +67,7 @@ class ThunderFactory
         return $this->sharing;
     }
 
-    public function punch(Update $update)
+    public function punch(Update $update) : void
     {
         $tag = $this->getTagger()->tag($update);
 

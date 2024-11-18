@@ -32,7 +32,9 @@ class FileSharing implements Sharing
                 touch($path);
             }
 
-            return $this->resources[$tag] = fopen($path, 'w+');
+            $resource = fopen($path, 'r+');
+            fseek($resource, 0);
+            return $this->resources[$tag] = $resource;
         }
 
         return $this->resources[$tag];
@@ -71,10 +73,11 @@ class FileSharing implements Sharing
         }
 
         $msg = serialize($message);
+
+        ftruncate($file, ftell($file) + 8 + strlen($msg));
+
         fwrite($file, pack('J', strlen($msg)));
         fwrite($file, $msg);
-
-        ftruncate($file, ftell($file));
 
         flock($file, LOCK_UN);
     }

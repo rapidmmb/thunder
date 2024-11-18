@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6acd20be01a0c3e166d81cdf5b42d86e",
+    "content-hash": "9718cfac254619eb5e24e2aabc8c3041",
     "packages": [
         {
             "name": "brick/math",
@@ -1765,12 +1765,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/rapidmmb/mmb.git",
-                "reference": "94786ba03797abd3d42e4e1f503f8df3da31e607"
+                "reference": "9dc31d87babb879cf425bd08a48e865c74d2fccc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rapidmmb/mmb/zipball/94786ba03797abd3d42e4e1f503f8df3da31e607",
-                "reference": "94786ba03797abd3d42e4e1f503f8df3da31e607",
+                "url": "https://api.github.com/repos/rapidmmb/mmb/zipball/9dc31d87babb879cf425bd08a48e865c74d2fccc",
+                "reference": "9dc31d87babb879cf425bd08a48e865c74d2fccc",
                 "shasum": ""
             },
             "require": {
@@ -1811,7 +1811,7 @@
                 "issues": "https://github.com/rapidmmb/mmb/issues",
                 "source": "https://github.com/rapidmmb/mmb/tree/main"
             },
-            "time": "2024-11-15T21:42:19+00:00"
+            "time": "2024-11-18T03:50:49+00:00"
         },
         {
             "name": "monolog/monolog",

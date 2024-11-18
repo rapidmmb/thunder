@@ -9,6 +9,7 @@ class ThunderServiceProvider extends ServiceProvider
 
     protected array $commands = [
         Commands\ThunderStartCommand::class,
+        Commands\ThunderStopCommand::class,
         Commands\ThunderRunProcessCommand::class,
     ];
 

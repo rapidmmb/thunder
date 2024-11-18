@@ -18,15 +18,57 @@ class ThunderStartCommand extends Command
 
     public function handle()
     {
+        if (!file_exists('thunder.lock'))
+        {
+            touch('thunder.lock');
+        }
+
+        $lock = fopen('thunder.lock', 'w');
+        $lockTries = 10;
+        while (!flock($lock, LOCK_EX | LOCK_UN) && --$lockTries)
+        {
+            usleep(100000);
+            $lockTries--;
+        }
+
+        if (!$lockTries)
+        {
+            $this->components->error("Thunder is already running in background ⚡");
+            return;
+        }
+
         $this->components->info("Thunder Started ⚡");
 
-        bot()->loopUpdates(
-            function (Update $update)
-            {
-                $this->output->info("New update received");
-                Thunder::punch($update);
-            }
-        );
+        try
+        {
+            bot()->loopUpdates(
+                function (Update $update)
+                {
+                    $this->output->info("New update received");
+                    Thunder::punch($update);
+                },
+                pass: function ()
+                {
+                    if (file_exists('thunder-stop.command'))
+                    {
+                        @unlink('thunder-stop.command');
+                        throw new \Exception;
+                    }
+                },
+                timeout: config('thunder.hook.long', 15),
+            );
+        }
+        catch (\Exception)
+        {
+            $this->components->warn("Thunder turned off ⚡");
+        }
+        finally
+        {
+            flock($lock, LOCK_UN);
+            fclose($lock);
+
+            @unlink('thunder.lock');
+        }
     }
 
 }
