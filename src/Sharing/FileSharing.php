@@ -30,7 +30,7 @@ class FileSharing implements Sharing
      * @param string $tag
      * @return FileShared
      */
-    protected function getResource(string $tag) : FileShared
+    protected function getResource(string $tag, bool $throwIfNotExists = false) : FileShared
     {
         if (isset($this->resources[$tag]))
         {
@@ -50,7 +50,7 @@ class FileSharing implements Sharing
             }
         }
 
-        return $this->resources[$tag] = new FileShared($this->getLockFile($tag));
+        return $this->resources[$tag] = new FileShared($this->getLockFile($tag), $throwIfNotExists);
     }
 
     /**
@@ -101,7 +101,7 @@ class FileSharing implements Sharing
 
     public function receive(string $tag) : mixed
     {
-        return $this->getResource($tag)->read();
+        return $this->getResource($tag, false)->read();
     }
 
     public function dispose() : void

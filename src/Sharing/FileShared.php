@@ -2,6 +2,8 @@
 
 namespace Mmb\Thunder\Sharing;
 
+use Mmb\Thunder\Exceptions\ProcessShareFileNotFoundException;
+
 class FileShared
 {
 
@@ -13,10 +15,16 @@ class FileShared
 
     public function __construct(
         public string $path,
+        public bool $throwIfNotExists,
     )
     {
         if (!file_exists($path))
         {
+            if ($this->throwIfNotExists)
+            {
+                throw new ProcessShareFileNotFoundException("File [$path] is not found");
+            }
+
             touch($path);
         }
 

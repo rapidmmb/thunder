@@ -3,6 +3,7 @@
 namespace Mmb\Thunder\Handle;
 
 use Mmb\Core\Updates\Update;
+use Mmb\Thunder\Exceptions\ProcessShareFileNotFoundException;
 use Mmb\Thunder\Thunder;
 
 class ProcessHandler
@@ -20,7 +21,10 @@ class ProcessHandler
 
         try
         {
-            while (true)
+            $lastMessageAt = time();
+            $release = config('thunder.puncher.release', 100) + 10;
+
+            while (time() - $lastMessageAt <= $release)
             {
                 if (null !== $new = $sharing->receive($this->tag))
                 {
@@ -32,11 +36,14 @@ class ProcessHandler
                     {
                         $new->handle();
                     }
+
+                    $lastMessageAt = time();
                 }
 
                 usleep(20000);
             }
         }
+        catch (ProcessShareFileNotFoundException) {}
         finally
         {
             $sharing->delete($this->tag);
