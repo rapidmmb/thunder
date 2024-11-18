@@ -1,5 +1,4 @@
 <?php
-declare(ticks=1);
 
 namespace Mmb\Thunder\Handle;
 
@@ -37,6 +36,7 @@ class ServerHandler
 
         $this->registerShutdown();
 
+        declare(ticks=1);
         try
         {
             bot()->loopUpdates(
