@@ -24,15 +24,18 @@ class ThunderRunProcessCommand extends Command
 
         try
         {
-            while (null !== $new = $sharing->receive($tag))
+            while (true)
             {
-                if ($new === false)
+                if (null !== $new = $sharing->receive($tag))
                 {
-                    break;
-                }
-                elseif ($new instanceof Update)
-                {
-                    $new->handle();
+                    if ($new === false)
+                    {
+                        break;
+                    }
+                    elseif ($new instanceof Update)
+                    {
+                        $new->handle();
+                    }
                 }
 
                 usleep(20000);

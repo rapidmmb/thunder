@@ -23,6 +23,7 @@ class ThunderStartCommand extends Command
         bot()->loopUpdates(
             function (Update $update)
             {
+                $this->output->info("New update received");
                 Thunder::punch($update);
             }
         );

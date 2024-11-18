@@ -7,7 +7,7 @@ use Mmb\Core\Updates\Update;
 class FileSharing implements Sharing
 {
 
-    protected array $path;
+    protected string $path;
 
     public function __construct()
     {
@@ -44,19 +44,6 @@ class FileSharing implements Sharing
     }
 
 
-    public function send(string $tag, mixed $message) : void
-    {
-        $file = $this->getResource($tag);
-
-        flock($file, LOCK_EX);
-
-        $msg = serialize($message);
-        fwrite($file, pack('J', strlen($msg)));
-        fwrite($file, $msg);
-
-        flock($file, LOCK_UN);
-    }
-
     public function isStop(string $tag) : bool
     {
         return !file_exists($this->getLockFile($tag));
@@ -72,13 +59,33 @@ class FileSharing implements Sharing
         unset($this->resources[$tag]);
     }
 
+    public function send(string $tag, mixed $message) : void
+    {
+        $file = $this->getResource($tag);
+
+        flock($file, LOCK_EX);
+
+        if (fstat($file)['size'] <= 0)
+        {
+            fseek($file, 0);
+        }
+
+        $msg = serialize($message);
+        fwrite($file, pack('J', strlen($msg)));
+        fwrite($file, $msg);
+
+        ftruncate($file, ftell($file));
+
+        flock($file, LOCK_UN);
+    }
+
     public function receive(string $tag) : mixed
     {
         $file = $this->getResource($tag);
 
         flock($file, LOCK_EX);
 
-        if (feof($file))
+        if (fstat($file)['size'] - ftell($file) <= 0)
         {
             $msg = null;
         }
@@ -86,6 +93,12 @@ class FileSharing implements Sharing
         {
             $length = unpack('J', fread($file, 8))[1];
             $msg = fread($file, $length);
+
+            if (fstat($file)['size'] - ftell($file) <= 0)
+            {
+                ftruncate($file, 0);
+                fseek($file, 0);
+            }
         }
 
         flock($file, LOCK_UN);
