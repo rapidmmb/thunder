@@ -10,7 +10,7 @@ class ServerHandler
 {
 
     protected string $lockPath;
-    protected string $stopCommandPath;
+    protected string $commandPath;
     protected        $lock;
 
     public function __construct(
@@ -18,7 +18,7 @@ class ServerHandler
     )
     {
         $this->lockPath = Thunder::getLockPath();
-        $this->stopCommandPath = Thunder::getStopCommandPath();
+        $this->commandPath = Thunder::getCommandPath();
     }
 
 
@@ -40,18 +40,16 @@ class ServerHandler
         try
         {
             bot()->loopUpdates(
-                function (Update $update)
+                callback: function (Update $update)
                 {
+                    $this->handlePreCommands();
+
                     $this->events?->newUpdate($update);
                     Thunder::punch($update);
                 },
                 pass   : function () use ($release)
                 {
-                    if (file_exists($this->stopCommandPath))
-                    {
-                        @unlink($this->stopCommandPath);
-                        throw new StopThunderException();
-                    }
+                    $this->handlePostCommands();
 
                     if ($killed = Thunder::getSharing()->disposeOlderThan($release))
                     {
@@ -169,6 +167,48 @@ class ServerHandler
         catch (\Throwable)
         {
         }
+    }
+
+    protected bool|string $preHandled = false;
+
+    public function handlePreCommands()
+    {
+        if ($this->preHandled !== false)
+        {
+            return;
+        }
+        elseif (file_exists($this->commandPath))
+        {
+            switch ($this->preHandled = file_get_contents($this->commandPath))
+            {
+                case 'HOT':
+                    @unlink($this->commandPath);
+                    Thunder::getSharing()->disposeOlderThan(-1);
+                    $this->events?->hotReloaded();
+                    break;
+            }
+        }
+        else
+        {
+            $this->preHandled = true;
+        }
+    }
+
+    public function handlePostCommands()
+    {
+        if ($this->preHandled === false)
+        {
+            $this->preHandled = file_exists($this->commandPath) ? file_get_contents($this->commandPath) : true;
+        }
+
+        switch ($this->preHandled)
+        {
+            case 'STOP':
+                @unlink($this->commandPath);
+                throw new StopThunderException();
+        }
+
+        $this->preHandled = false;
     }
 
 }

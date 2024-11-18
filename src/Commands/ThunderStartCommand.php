@@ -57,4 +57,9 @@ class ThunderStartCommand extends Command implements ServerEventHandler
         $this->output->note($message);
     }
 
+    public function hotReloaded()
+    {
+        $this->output->info("Hot reloaded! 🔥");
+    }
+
 }

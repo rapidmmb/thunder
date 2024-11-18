@@ -4,7 +4,7 @@ namespace Mmb\Thunder\Handle;
 
 use Mmb\Thunder\Thunder;
 
-class StopHandler
+class StopHandler extends SendCommandHandlerAbstract
 {
 
     public function __construct(
@@ -13,44 +13,22 @@ class StopHandler
     {
     }
 
-    public function handle()
+    protected string $command = 'STOP';
+
+    protected bool $wait = true;
+
+    protected function isNotRunning()
     {
-        $lockPath = Thunder::getLockPath();
-        $stopCommandPath = Thunder::getStopCommandPath();
+        $this->events?->isNotRunning();
+    }
 
-        if (!file_exists($lockPath))
-        {
-            $this->events?->isNotRunning();
-            return;
-        }
-
-        $lock = fopen($lockPath, 'w');
-        try
-        {
-            if (flock($lock, LOCK_EX | LOCK_NB))
-            {
-                $this->events?->isNotRunning();
-                return;
-            }
-        }
-        finally
-        {
-            flock($lock, LOCK_UN);
-            fclose($lock);
-        }
-
-        if (!file_exists($stopCommandPath))
-        {
-            touch($stopCommandPath);
-        }
-
+    protected function processing()
+    {
         $this->events?->processing();
+    }
 
-        while (file_exists($stopCommandPath))
-        {
-            sleep(1);
-        }
-
+    protected function success()
+    {
         $this->events?->success();
     }
 

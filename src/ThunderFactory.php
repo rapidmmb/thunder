@@ -81,9 +81,9 @@ class ThunderFactory
         return base_path('thunder.lock');
     }
 
-    public function getStopCommandPath() : string
+    public function getCommandPath() : string
     {
-        return base_path('thunder-stop.command');
+        return base_path('thunder.command');
     }
 
 }

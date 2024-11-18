@@ -21,4 +21,6 @@ interface ServerEventHandler
 
     public function suggest(string $message);
 
+    public function hotReloaded();
+
 }

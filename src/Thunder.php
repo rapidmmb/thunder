@@ -14,7 +14,7 @@ use Mmb\Thunder\Tagger\Tagger;
  * @method static Sharing getSharing()
  * @method static void punch(Update $update)
  * @method static string getLockPath()
- * @method static string getStopCommandPath()
+ * @method static string getCommandPath()
  */
 class Thunder extends Facade
 {
