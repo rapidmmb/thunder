@@ -76,4 +76,14 @@ class ThunderFactory
         $this->getSharing()->send($tag, $update);
     }
 
+    public function getLockPath() : string
+    {
+        return base_path('thunder.lock');
+    }
+
+    public function getStopCommandPath() : string
+    {
+        return base_path('thunder-stop.command');
+    }
+
 }

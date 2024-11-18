@@ -3,6 +3,7 @@
 namespace Mmb\Thunder;
 
 use Illuminate\Support\Facades\Facade;
+use Mmb\Core\Updates\Update;
 use Mmb\Thunder\Puncher\Puncher;
 use Mmb\Thunder\Sharing\Sharing;
 use Mmb\Thunder\Tagger\Tagger;
@@ -11,6 +12,9 @@ use Mmb\Thunder\Tagger\Tagger;
  * @method static Puncher getPuncher()
  * @method static Tagger getTagger()
  * @method static Sharing getSharing()
+ * @method static void punch(Update $update)
+ * @method static string getLockPath()
+ * @method static string getStopCommandPath()
  */
 class Thunder extends Facade
 {

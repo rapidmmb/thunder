@@ -3,6 +3,7 @@
 namespace Mmb\Thunder\Commands;
 
 use Illuminate\Console\Command;
+use Mmb\Thunder\Thunder;
 
 class ThunderStopCommand extends Command
 {
@@ -16,13 +17,16 @@ class ThunderStopCommand extends Command
 
     public function handle()
     {
-        if (!file_exists('thunder.lock'))
+        $lockPath = Thunder::getLockPath();
+        $stopCommandPath = Thunder::getStopCommandPath();
+
+        if (!file_exists($lockPath))
         {
             $this->components->error("Thunder is not running ⚡");
             return;
         }
 
-        $lock = fopen('thunder.lock', 'w');
+        $lock = fopen($lockPath, 'w');
         try
         {
             if (flock($lock, LOCK_EX | LOCK_NB))
@@ -37,15 +41,15 @@ class ThunderStopCommand extends Command
             fclose($lock);
         }
 
-        if (!file_exists('thunder-stop.command'))
+        if (!file_exists($stopCommandPath))
         {
-            touch('thunder-stop.command');
+            touch($stopCommandPath);
         }
 
         $this->components->info("Trying to stopping main process... ⚡");
         $this->info("Waiting for main process to response...");
 
-        while (file_exists('thunder-stop.command'))
+        while (file_exists($stopCommandPath))
         {
             sleep(1);
         }

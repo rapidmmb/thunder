@@ -19,12 +19,15 @@ class ThunderStartCommand extends Command
 
     public function handle()
     {
-        if (!file_exists('thunder.lock'))
+        $lockPath = Thunder::getLockPath();
+        $stopCommandPath = Thunder::getStopCommandPath();
+
+        if (!file_exists($lockPath))
         {
-            touch('thunder.lock');
+            touch($lockPath);
         }
 
-        $lock = fopen('thunder.lock', 'w');
+        $lock = fopen($lockPath, 'w');
         $lockTries = 10;
         while (!flock($lock, LOCK_EX | LOCK_NB) && --$lockTries)
         {
@@ -49,11 +52,11 @@ class ThunderStartCommand extends Command
                     $this->output->info("New update received");
                     Thunder::punch($update);
                 },
-                pass: function () use ($release)
+                pass: function () use ($release, $stopCommandPath)
                 {
-                    if (file_exists('thunder-stop.command'))
+                    if (file_exists($stopCommandPath))
                     {
-                        @unlink('thunder-stop.command');
+                        @unlink($stopCommandPath);
                         throw new StopThunderException();
                     }
 
@@ -75,7 +78,7 @@ class ThunderStartCommand extends Command
             flock($lock, LOCK_UN);
             fclose($lock);
 
-            @unlink('thunder.lock');
+            @unlink($lockPath);
         }
     }
 

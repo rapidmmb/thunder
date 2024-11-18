@@ -50,7 +50,7 @@ class FileSharing implements Sharing
             }
         }
 
-        return $this->resources[$tag] = new FileShared($tag);
+        return $this->resources[$tag] = new FileShared($this->getLockFile($tag));
     }
 
     /**
@@ -131,7 +131,7 @@ class FileSharing implements Sharing
     {
         foreach ($this->resources as $file)
         {
-            if (!$file->isExpired && !$file->isStopped() && $file->lastMessageAt - time() > $timeout)
+            if (!$file->isExpired && !$file->isStopped() && time() - $file->lastMessageAt > $timeout)
             {
                 $file->write('STOP');
                 $file->isExpired = true;
