@@ -4,7 +4,7 @@ namespace Mmb\Thunder\Puncher;
 
 use Mmb\Thunder\Thunder;
 
-class ProcessPuncher implements Puncher
+class ProcessPuncher implements Puncher, Pipeable
 {
 
     protected array $processes = [];
@@ -23,8 +23,56 @@ class ProcessPuncher implements Puncher
                 2 => ['pipe', 'w'], // stderr
             ];
 
-            $this->processes[$tag] = proc_open($command, $descriptors, $pipes);
+            if ($proc = proc_open($command, $descriptors, $pipes))
+            {
+                $this->processes[$tag] = [$proc, ...$pipes];
+            }
         }
+    }
+
+    public function getInput(string $tag)
+    {
+        if (Thunder::getIsChild())
+        {
+            return STDIN;
+        }
+
+        if ($proc = @$this->processes[$tag])
+        {
+            return $proc[1];
+        }
+
+        return null;
+    }
+
+    public function getOutput(string $tag)
+    {
+        if (Thunder::getIsChild())
+        {
+            return STDOUT;
+        }
+
+        if ($proc = @$this->processes[$tag])
+        {
+            return $proc[2];
+        }
+
+        return null;
+    }
+
+    public function getAllTags() : array
+    {
+        $all = [];
+
+        foreach ($this->processes as $tag => [$proc, $in])
+        {
+            if ($proc && proc_get_status($proc) == 'running' && !feof($in))
+            {
+                $all[] = $tag;
+            }
+        }
+
+        return $all;
     }
 
 }

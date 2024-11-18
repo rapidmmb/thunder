@@ -15,6 +15,8 @@ use Mmb\Thunder\Tagger\Tagger;
  * @method static void punch(Update $update)
  * @method static string getLockPath()
  * @method static string getCommandPath()
+ * @method static void setAsChild()
+ * @method static bool getIsChild()
  */
 class Thunder extends Facade
 {

@@ -6,6 +6,7 @@ use Mmb\Core\Updates\Update;
 use Mmb\Thunder\Puncher\ProcessPuncher;
 use Mmb\Thunder\Puncher\Puncher;
 use Mmb\Thunder\Sharing\FileSharing;
+use Mmb\Thunder\Sharing\PipeSharing;
 use Mmb\Thunder\Sharing\Sharing;
 use Mmb\Thunder\Tagger\ChatTagger;
 use Mmb\Thunder\Tagger\Tagger;
@@ -59,6 +60,7 @@ class ThunderFactory
                 match ($driver)
                 {
                     'file'  => FileSharing::class,
+                    'pipe'  => PipeSharing::class,
                     default => $driver,
                 }
             );
@@ -84,6 +86,18 @@ class ThunderFactory
     public function getCommandPath() : string
     {
         return base_path('thunder.command');
+    }
+
+    protected bool $isChild = false;
+
+    public function setAsChild()
+    {
+        $this->isChild = true;
+    }
+
+    public function getIsChild() : bool
+    {
+        return $this->isChild;
     }
 
 }

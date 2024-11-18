@@ -17,6 +17,7 @@ class ProcessHandler
 
     public function handle()
     {
+        Thunder::setAsChild();
         $sharing = Thunder::getSharing();
 
         try
