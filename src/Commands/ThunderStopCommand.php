@@ -25,7 +25,7 @@ class ThunderStopCommand extends Command
         $lock = fopen('thunder.lock', 'w');
         try
         {
-            if (flock($lock, LOCK_EX | LOCK_UN))
+            if (flock($lock, LOCK_EX | LOCK_NB))
             {
                 $this->components->error("Thunder is not running ⚡");
                 return;

@@ -28,7 +28,7 @@ class ThunderRunProcessCommand extends Command
             {
                 if (null !== $new = $sharing->receive($tag))
                 {
-                    if ($new === false)
+                    if ($new === 'STOP')
                     {
                         break;
                     }

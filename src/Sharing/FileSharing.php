@@ -108,4 +108,29 @@ class FileSharing implements Sharing
 
         return $msg === null ? null : unserialize($msg);
     }
+
+    public function dispose() : void
+    {
+        $tags = array_keys($this->resources);
+
+        foreach ($tags as $tag)
+        {
+            $this->send($tag, 'STOP');
+        }
+
+        $tags = array_flip($tags);
+
+        while ($tags)
+        {
+            foreach ($tags as $tag => $_)
+            {
+                if ($this->isStop($tag))
+                {
+                    unset($tags[$tag]);
+                }
+            }
+
+            usleep(100000);
+        }
+    }
 }

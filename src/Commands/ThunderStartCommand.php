@@ -25,7 +25,7 @@ class ThunderStartCommand extends Command
 
         $lock = fopen('thunder.lock', 'w');
         $lockTries = 10;
-        while (!flock($lock, LOCK_EX | LOCK_UN) && --$lockTries)
+        while (!flock($lock, LOCK_EX | LOCK_NB) && --$lockTries)
         {
             usleep(100000);
             $lockTries--;
@@ -60,7 +60,11 @@ class ThunderStartCommand extends Command
         }
         catch (\Exception)
         {
-            $this->components->warn("Thunder turned off ⚡");
+            $this->alert("Turning off...");
+
+            Thunder::getSharing()->dispose();
+
+            $this->components->alert("Thunder turned off ⚡");
         }
         finally
         {
