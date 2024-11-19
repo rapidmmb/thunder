@@ -2,7 +2,9 @@
 
 namespace Mmb\Thunder\Handle;
 
+use Mmb\Action\Memory\Step;
 use Mmb\Core\Updates\Update;
+use Mmb\Support\Db\ModelFinder;
 use Mmb\Thunder\Exceptions\ProcessShareFileNotFoundException;
 use Mmb\Thunder\Thunder;
 
@@ -35,6 +37,10 @@ class ProcessHandler
                     }
                     elseif ($new instanceof Update)
                     {
+                        // TODO : Remove all the caches
+                        ModelFinder::clear();
+                        Step::setModel(null);
+
                         $new->handle();
                     }
 
