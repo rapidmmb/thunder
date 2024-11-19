@@ -15,7 +15,8 @@ class ProcessPuncher implements Puncher, Pipeable
         {
             $command = config('thunder.puncher.process.command');
 
-            $command = str_replace('[TAG]', '"' . addslashes($tag) . '"', $command);
+            $artisan = base_path('artisan');
+            $command = str_replace(['[TAG]', '[ARTISAN]'], ['"' . addslashes($tag) . '"', '"' . addslashes($artisan) . '"'], $command);
 
             $descriptors = [
                 0 => ['pipe', 'r'], // stdin

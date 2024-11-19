@@ -19,7 +19,7 @@ return [
         'release' => 180,
 
         'process' => [
-            'command' => 'php artisan thunder:run-process [TAG]',
+            'command' => 'php [ARTISAN] thunder:run-process [TAG]',
         ],
     ],
 
