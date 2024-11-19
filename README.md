@@ -27,6 +27,12 @@ To start the thunder service, run this command:
 php artisan thunder:start
 ```
 
+Or run it in background process:
+
+```shell
+php artisan thunder:start > /dev/null &
+```
+
 ### Stop Command
 
 To stop the thunder service that running in the background, run this command:
