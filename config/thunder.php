@@ -4,6 +4,8 @@ use Mmb\Thunder\Tagger;
 
 return [
 
+    'driver' => 'pipe',
+
     /*
     |--------------------------------------------------------------------------
     | Thunder puncher
