@@ -21,7 +21,7 @@ class ProcessHandler
 
     public function handle()
     {
-        $process = app(ProcessChild::class);
+        $process = Thunder::createChild();
 
         try
         {
@@ -30,7 +30,7 @@ class ProcessHandler
 
             while (time() - $lastMessageAt <= $release)
             {
-                if (null !== $new = $process->receive($this->tag))
+                if (null !== $new = $process->receive())
                 {
                     if ($new === 'STOP')
                     {
@@ -42,11 +42,7 @@ class ProcessHandler
                     }
                     elseif ($new instanceof Update)
                     {
-                        // TODO : Remove all the caches
-                        ModelFinder::clear();
-                        Step::setModel(null);
-
-                        $new->handle();
+                        $process->handle($new);
                     }
 
                     $lastMessageAt = time();

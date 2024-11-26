@@ -35,7 +35,7 @@ class ServerHandler
 
         $this->events?->started();
 
-        $this->thunderProcess = new ThunderProcess(app(ProcessManager::class));
+        $this->thunderProcess = new ThunderProcess(Thunder::createManager());
 
         $this->registerShutdown();
 
