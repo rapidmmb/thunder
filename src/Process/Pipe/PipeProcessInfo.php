@@ -9,8 +9,8 @@ class PipeProcessInfo implements ProcessInfo
 {
 
     public function __construct(
-        protected PipeProcessHandler $processHandler,
-        protected string $tag,
+        protected PipeProcessManager $processHandler,
+        protected string             $tag,
     )
     {
     }
@@ -56,7 +56,7 @@ class PipeProcessInfo implements ProcessInfo
 
         try
         {
-            $this->write('FINISH');
+            $this->write('STOP');
             $this->processHandler->killAfter($this, 30); // todo : time from config
         }
         catch (\Throwable)

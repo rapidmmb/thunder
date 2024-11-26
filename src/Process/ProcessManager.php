@@ -4,7 +4,7 @@ namespace Mmb\Thunder\Process;
 
 use Mmb\Core\Updates\Update;
 
-interface ProcessHandler
+interface ProcessManager
 {
 
     /**

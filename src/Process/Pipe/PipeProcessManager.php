@@ -4,11 +4,11 @@ namespace Mmb\Thunder\Process\Pipe;
 
 use Illuminate\Support\Arr;
 use Mmb\Core\Updates\Update;
-use Mmb\Thunder\Process\ProcessHandler;
+use Mmb\Thunder\Process\ProcessManager;
 use Mmb\Thunder\Process\ProcessInfo;
 use Mmb\Thunder\Thunder;
 
-class PipeProcessHandler implements ProcessHandler
+class PipeProcessManager implements ProcessManager
 {
 
     /**

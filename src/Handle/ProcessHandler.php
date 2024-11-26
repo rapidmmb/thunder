@@ -6,6 +6,8 @@ use Mmb\Action\Memory\Step;
 use Mmb\Core\Updates\Update;
 use Mmb\Support\Db\ModelFinder;
 use Mmb\Thunder\Exceptions\ProcessShareFileNotFoundException;
+use Mmb\Thunder\Process\Pipe\PipeProcessChild;
+use Mmb\Thunder\Process\ProcessChild;
 use Mmb\Thunder\Thunder;
 
 class ProcessHandler
@@ -19,8 +21,7 @@ class ProcessHandler
 
     public function handle()
     {
-        Thunder::setAsChild();
-        $sharing = Thunder::getSharing();
+        $process = app(ProcessChild::class);
 
         try
         {
@@ -29,11 +30,15 @@ class ProcessHandler
 
             while (time() - $lastMessageAt <= $release)
             {
-                if (null !== $new = $sharing->receive($this->tag))
+                if (null !== $new = $process->receive($this->tag))
                 {
                     if ($new === 'STOP')
                     {
                         break;
+                    }
+                    elseif (is_array($new) && $new[0] === 'UPDATE:TAG')
+                    {
+                        // Nothing
                     }
                     elseif ($new instanceof Update)
                     {
@@ -53,10 +58,6 @@ class ProcessHandler
             }
         }
         catch (ProcessShareFileNotFoundException) {}
-        finally
-        {
-            $sharing->delete($this->tag);
-        }
     }
 
 }

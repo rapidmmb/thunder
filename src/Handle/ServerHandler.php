@@ -4,6 +4,8 @@ namespace Mmb\Thunder\Handle;
 
 use Mmb\Core\Updates\Update;
 use Mmb\Thunder\Exceptions\StopThunderException;
+use Mmb\Thunder\Process\ProcessManager;
+use Mmb\Thunder\Process\ThunderProcess;
 use Mmb\Thunder\Thunder;
 
 class ServerHandler
@@ -21,6 +23,7 @@ class ServerHandler
         $this->commandPath = Thunder::getCommandPath();
     }
 
+    public ThunderProcess $thunderProcess;
 
     public function handle()
     {
@@ -32,29 +35,30 @@ class ServerHandler
 
         $this->events?->started();
 
-        $release = config('thunder.puncher.release', 100);
+        $this->thunderProcess = new ThunderProcess(app(ProcessManager::class));
 
         $this->registerShutdown();
 
         declare(ticks=1);
         try
         {
+            $this->thunderProcess->start();
+            $this->thunderProcess->inspection();
+
             bot()->loopUpdates(
                 callback: function (Update $update)
                 {
                     $this->handlePreCommands();
 
                     $this->events?->newUpdate($update);
-                    Thunder::punch($update);
+
+                    $this->thunderProcess->handle($update);
                 },
-                pass   : function () use ($release)
+                pass   : function ()
                 {
                     $this->handlePostCommands();
 
-                    if ($killed = Thunder::getSharing()->disposeOlderThan($release))
-                    {
-                        $this->events?->releasedOld($killed);
-                    }
+                    $this->thunderProcess->inspection();
                 },
                 timeout: config('thunder.hook.long', 60),
             );
@@ -123,7 +127,7 @@ class ServerHandler
     {
         $this->events?->turningOff();
 
-        Thunder::getSharing()->dispose();
+        $this->thunderProcess->stop();
 
         $this->events?->turnedOff();
     }
@@ -183,7 +187,7 @@ class ServerHandler
             {
                 case 'HOT':
                     @unlink($this->commandPath);
-                    Thunder::getSharing()->disposeOlderThan(-1);
+                    $this->thunderProcess->hotReload();
                     $this->events?->hotReloaded();
                     break;
             }
