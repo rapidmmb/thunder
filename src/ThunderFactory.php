@@ -45,7 +45,7 @@ class ThunderFactory
     {
         if (!isset($this->tagger))
         {
-            $driver = config('thunder.tagger.class', ChatTagger::class);
+            $driver = config('thunder.tagger', ChatTagger::class);
 
             $this->tagger = app()->make($driver);
         }

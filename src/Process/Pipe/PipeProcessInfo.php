@@ -30,7 +30,7 @@ class PipeProcessInfo implements ProcessInfo
 
     public function open() : void
     {
-        $command = config('thunder.puncher.process.command');
+        $command = config('thunder.command');
 
         $artisan = base_path('artisan');
         $command = str_replace(['[TAG]', '[ARTISAN]'], ['"' . addslashes($this->tag) . '"', '"' . addslashes($artisan) . '"'], $command);

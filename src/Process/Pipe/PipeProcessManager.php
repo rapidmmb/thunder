@@ -102,7 +102,7 @@ class PipeProcessManager implements ProcessManager
                     $process->end();
                     unset($this->processes[$key]);
                 }
-                elseif ($process->lastActivityAt() < time() - config('thunder.puncher.release'))
+                elseif ($process->lastActivityAt() < time() - config('thunder.timeout_interval', 100))
                 {
                     $process->end();
                     unset($this->processes[$key]);

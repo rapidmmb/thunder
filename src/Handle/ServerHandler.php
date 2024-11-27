@@ -60,7 +60,7 @@ class ServerHandler
 
                     $this->thunderProcess->inspection();
                 },
-                timeout: config('thunder.hook.long', 60),
+                timeout: config('thunder.hook_long', 60),
             );
         }
         catch (StopThunderException)

@@ -2,12 +2,7 @@
 
 namespace Mmb\Thunder\Handle;
 
-use Mmb\Action\Memory\Step;
 use Mmb\Core\Updates\Update;
-use Mmb\Support\Db\ModelFinder;
-use Mmb\Thunder\Exceptions\ProcessShareFileNotFoundException;
-use Mmb\Thunder\Process\Pipe\PipeProcessChild;
-use Mmb\Thunder\Process\ProcessChild;
 use Mmb\Thunder\Thunder;
 
 class ProcessHandler
@@ -26,7 +21,7 @@ class ProcessHandler
         try
         {
             $lastMessageAt = time();
-            $release = config('thunder.puncher.release', 100) + 10;
+            $release = config('thunder.timeout_interval', 100) + 10;
 
             while (time() - $lastMessageAt <= $release)
             {
@@ -53,7 +48,10 @@ class ProcessHandler
                 }
             }
         }
-        catch (ProcessShareFileNotFoundException) {}
+        catch (\Throwable $e)
+        {
+            report($e);
+        }
     }
 
 }

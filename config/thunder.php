@@ -4,70 +4,69 @@ use Mmb\Thunder\Tagger;
 
 return [
 
+    /*
+    |--------------------------------------------------------------------------
+    | Thunder driver
+    |--------------------------------------------------------------------------
+    | Thunder driver manage the process and handling update in the background,
+    | kill the unused process and so much other.
+    |
+    | Allowed types: pipe
+    |
+    */
     'driver' => 'pipe',
 
     /*
     |--------------------------------------------------------------------------
-    | Thunder puncher
+    | Idle worker count
     |--------------------------------------------------------------------------
-    |
-    |
-    |
-    | Allowed types: process
+    | Thunder keep some idle workers in the background ready, to handle updates
+    | using that ready processes.
+    | This feature makes the thunder so efficient.
     |
     */
-    'puncher' => [
-        'driver' => 'process',
-        'release' => 180,
-
-        'process' => [
-            'command' => 'php [ARTISAN] thunder:run-process [TAG]',
-        ],
-    ],
+    'idle_count' => 3,
 
     /*
     |--------------------------------------------------------------------------
-    | Thunder tagger
+    | Timeout interval
     |--------------------------------------------------------------------------
-    |
-    |
-    |
-    |
+    | If a process has no work anymore, for example a user send an update and
+    | then close the bot. In this case, a timeout is enabled to close unused
+    | child processes.
     |
     */
-    'tagger' => [
-        'class' => Tagger\ChatTagger::class,
-    ],
+    'timeout_interval' => 100,
 
     /*
     |--------------------------------------------------------------------------
-    | Thunder handle sharing
+    | Command
     |--------------------------------------------------------------------------
-    |
-    |
-    |
-    | Allowed types: file, pipe
+    | This command run a new process using Thunder core. You can create a
+    | custom command and replace that in this section.
     |
     */
-    'sharing' => [
-        'driver' => 'pipe',
-
-        'file' => [
-            'path' => storage_path('thunder/share'),
-        ],
-    ],
+    'command' => 'php [ARTISAN] thunder:run-process [TAG]',
 
     /*
     |--------------------------------------------------------------------------
-    | Thunder update hook
+    | Tagger class
     |--------------------------------------------------------------------------
-    |
-    |
-    |
+    | Tagger, tag the update by some cases like [Chat], and then pass the
+    | updates in the specific process that is marked as same tag.
+    | The updates will run as a queue, so selection of tagger is so important.
     |
     */
-    'hook' => [
-        'long' => 60,
-    ],
+    'tagger' => Tagger\ChatTagger::class,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Hook long
+    |--------------------------------------------------------------------------
+    | Time that telegram waits for new updates in the [getUpdates] method.
+    | Long time is a good choice.
+    |
+    */
+    'hook_long' => 60,
 
 ];
