@@ -31,7 +31,7 @@ return [
     |--------------------------------------------------------------------------
     | Timeout interval
     |--------------------------------------------------------------------------
-    | If a process has no work anymore, for example a user send an update and
+    | If a process has no job anymore, for example a user send an update and
     | then close the bot. In this case, a timeout is enabled to close unused
     | child processes.
     |

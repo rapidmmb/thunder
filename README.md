@@ -67,20 +67,36 @@ Publish the config with following command:
 php artisan vendor:publish --tag=thunder
 ```
 
-### Puncher
+### Driver
 
-Puncher is the way to open new process for a tag and update.
+Driver is the manger of updates and processes.
 
 ```php
-'driver' => 'process',
+'driver' => 'pipe',
 ```
 
-> Currently, only "process" driver is available.
+> Currently, only "pipe" driver is available.
 
-Release is time to release a tagged process when no updates are available for that.
+
+### Idle Count
+
+Thunder keep some idle workers in the background ready, to handle updates
+using that ready processes.
+This feature makes the thunder so efficient.
 
 ```php
-'release' => 180,
+'idle_count' => 3,
+```
+
+
+### Timeout Interval
+
+If a process has no job anymore, for example a user send an update and
+then close the bot. In this case, a timeout is enabled to close unused
+child processes.
+
+```php
+'timeout_interval' => 100,
 ```
 
 
@@ -107,19 +123,7 @@ class UserTagger implements Tagger
 ```
 
 
-### Sharing
-
-Sharing is the way to main process and child process should connect to each
-other and send messages.
-
-```php
-'driver' => 'pipe',
-```
-
-> Currently, only "pipe" and "file" driver is available.
-
-
-### Hook
+### Hook Long
 
 Hook is settings for listening for updates.
 
@@ -127,5 +131,5 @@ The "long" key is the timeout for "getUpdates" method in Telegram api.
 This parameter is time to wait by telegram until new update passed.
 
 ```php
-'long' => 60,
+'hook_long' => 60,
 ```
