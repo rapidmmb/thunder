@@ -180,11 +180,13 @@ class PipeProcessManager implements ProcessManager
 
         if (!$process)
         {
-            foreach ($this->idle as $idle)
+            $selectedIdle = null;
+            foreach ($this->idle as $key => $idle)
             {
                 if (!$idle->isEnded() && $idle->checkAlive())
                 {
                     $process = $idle;
+                    $selectedIdle = $key;
                     break;
                 }
             }
@@ -192,12 +194,15 @@ class PipeProcessManager implements ProcessManager
             if ($process)
             {
                 $process->updateTag($tag); // todo : can throw an error
+                unset($this->idle[$selectedIdle]);
+                $this->processes[$tag] = $process;
             }
         }
 
         if (!$process)
         {
             $process = $this->open($tag);
+            $this->processes[$tag] = $process;
         }
 
         try
@@ -265,7 +270,7 @@ class PipeProcessManager implements ProcessManager
     {
         /** @var ProcessInfo $process */
         foreach (
-            array_unique(array_merge(Arr::pluck($this->killBuffer, 0), $this->processes, $this->idle))
+            array_unique(array_merge(Arr::pluck($this->killBuffer, 0), $this->processes, $this->idle), SORT_REGULAR)
             as $process
         )
         {

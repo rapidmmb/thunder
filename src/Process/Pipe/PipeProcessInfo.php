@@ -72,7 +72,7 @@ class PipeProcessInfo implements ProcessInfo
         $this->isEnded = true;
         try
         {
-            proc_terminate($this->process);
+            proc_terminate($this->process, 9);
         }
         catch (\Throwable) { }
     }
